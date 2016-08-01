@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">CompaniesMap</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_closed">Closed</string>
+    <array name="POI_Names">
+        <item>Bar</item>
+        <item>Ristorante</item>
+        <item>Supermercato</item>
+        <item>Banca</item>
+        <item>Farmacia</item>
+        <item>Tabaccheria</item>
+        <item>Alimentari</item>
+    </array>
+</resources>
