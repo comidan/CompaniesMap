@@ -3,10 +3,19 @@
     <string name="title_activity_maps">Map</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_closed">Closed</string>
-    <array name="POI_Names">
+    <array name="poi_mames">        //https://developers.google.com/places/supported_types
+        <item>bar</item>
+        <item>restaurant</item>
+        <item>shopping_mall</item>
+        <item>bank</item>
+        <item>pharmacy</item>
+        <item>cafe</item>
+        <item>home_goods_store</item>
+    </array>
+    <array name="drawer_names">
         <item>Bar</item>
         <item>Ristorante</item>
-        <item>Supermercato</item>
+        <item>Superamercato</item>
         <item>Banca</item>
         <item>Farmacia</item>
         <item>Tabaccheria</item>

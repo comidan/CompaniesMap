@@ -37,7 +37,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private ListView drawerList;
-    private String[] drawerTitles;
+    private String[] drawerTitles, locationTypes;
     private CharSequence drawerTitle;
     private CharSequence title;
     private GoogleMap map;
@@ -53,7 +53,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_maps);
         title = drawerTitle = getTitle();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerTitles = getResources().getStringArray(R.array.POI_Names);
+        drawerTitles = getResources().getStringArray(R.array.drawer_names);
+        locationTypes = getResources().getStringArray(R.array.poi_mames);
         drawerList = (ListView) findViewById(R.id.left_drawer);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -130,11 +131,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
             return;
         }
         locationManager.removeUpdates(this);
-        showNearByPointOfInterests(drawerTitles[0]);
+        showNearByPointOfInterests(locationTypes[0]);
     }
 
     private void selectItem(int position) {
-        showNearByPointOfInterests(drawerTitles[position]);
+        showNearByPointOfInterests(locationTypes[position]);
     }
 
     private void showNearByPointOfInterests(String pointOfInterest) {
