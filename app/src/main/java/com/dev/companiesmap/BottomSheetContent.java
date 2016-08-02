@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class BottomSheetContent {
 
-    private TextView title, address, isNowOpen, ratingValue, howFar, phoneNumber;
+    private TextView title, address, isNowOpen, ratingValue, howFar, phoneNumber, priceLevel;
     private RatingBar ratingBar;
     private SlidingUpPanelLayout bottomSheetLayout;
     private HashMap<Marker, HashMap<String, String>> dynamicMarkers;
@@ -67,6 +67,14 @@ public class BottomSheetContent {
 
     public void setPhoneNumber(TextView phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public TextView getPriceLevel() {
+        return priceLevel;
+    }
+
+    public void setPriceLevel(TextView priceLevel) {
+        this.priceLevel = priceLevel;
     }
 
     public RatingBar getRatingBar() {

@@ -76,7 +76,9 @@ public class PlacesDisplayTask extends AsyncTask<Object, Integer, List<HashMap<S
                     bottomSheetContent.getRatingValue().setText(rating + "");
                     bottomSheetContent.getRatingBar().setRating(rating);
                 }
-                bottomSheetContent.getIsNowOpen().setText("Aperto ora : " + bottomSheetContent.getDynamicMarkers().get(marker).get("open_now"));
+                bottomSheetContent.getIsNowOpen().setText(bottomSheetContent.getDynamicMarkers().get(marker).get("open_now").equals("true") ?
+                                                          "Aperto ora" : "Chiuso ora");
+                bottomSheetContent.getPriceLevel().setText(bottomSheetContent.getDynamicMarkers().get(marker).get("price_level"));
                 return false;
             }
         });

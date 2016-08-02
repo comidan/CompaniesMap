@@ -53,6 +53,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private GoogleApiClient googleApiClient;
     private GoogleMap map;
     private LocationManager locationManager;
+    private Location tempLocation = null;
+    private int selectedPOI = 0;
     double latitude = 0;
     double longitude = 0;
 
@@ -71,6 +73,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedPOI = position;
                 selectItem(position);
             }
         });
@@ -118,6 +121,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetContent.setPhoneNumber((TextView) findViewById(R.id.phone_number));
         bottomSheetContent.setRatingValue((TextView) findViewById(R.id.rating_value));
         bottomSheetContent.setTitle((TextView) findViewById(R.id.title));
+        bottomSheetContent.setPriceLevel((TextView) findViewById(R.id.price_level));
         bottomSheetContent.setRatingBar((RatingBar) findViewById(R.id.rating_bar));
         bottomSheetLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,12 +161,14 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if(tempLocation == null)
+            tempLocation = location;
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(latLng)
                 .tilt(60)
                 .zoom(15)
                 .bearing(0)
-                                                          .build();
+                .build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
         map.moveCamera(cameraUpdate);
         map.animateCamera(CameraUpdateFactory.zoomIn());
@@ -171,8 +177,10 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             // TODO: marshmallow things
             return;
         }
-        locationManager.removeUpdates(this);
-        showNearByPointOfInterests(locationTypes[0]);
+        if(tempLocation != location && tempLocation.distanceTo(location) > MIN_DISTANCE / 2) {
+            showNearByPointOfInterests(locationTypes[selectedPOI]);
+            tempLocation = null;
+        }
     }
 
     private void selectItem(int position) {
