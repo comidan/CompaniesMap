@@ -3,11 +3,16 @@ package com.dev.companiesmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
+
+import java.io.IOException;
 
 public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
     String googlePlacesData = null;
     GoogleMap googleMap;
+    GoogleApiClient googleApiClient;
+    BottomSheetContent bottomSheetContent;
 
     @Override
     protected String doInBackground(Object... inputObj) {
@@ -15,10 +20,12 @@ public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
         {
             googleMap = (GoogleMap) inputObj[0];
             String googlePlacesUrl = (String) inputObj[1];
+            googleApiClient = (GoogleApiClient) inputObj[2];
+            bottomSheetContent = (BottomSheetContent) inputObj[3];
             Http http = new Http();
             googlePlacesData = http.read(googlePlacesUrl);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             Log.d("Google Place Read Task", e.toString());
         }
@@ -27,11 +34,12 @@ public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Log.v("HTTP_Result", result);
         PlacesDisplayTask placesDisplayTask = new PlacesDisplayTask();
-        Object[] toPass = new Object[2];
+        Object[] toPass = new Object[4];
         toPass[0] = googleMap;
         toPass[1] = result;
+        toPass[2] = googleApiClient;
+        toPass[3] = bottomSheetContent;
         placesDisplayTask.execute(toPass);
     }
 }
