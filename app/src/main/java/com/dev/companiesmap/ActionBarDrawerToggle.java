@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;

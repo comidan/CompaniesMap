@@ -3,6 +3,7 @@ package com.dev.companiesmap;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -41,8 +43,13 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
     private static final int PROXIMITY_RADIUS = 5000;
+    private static final int ANIMATION_TIME = 2000;
+    private static final int MAX_MAP_ZOOM = 15;
+    private static final int MAP_BEARING_DIRECTION = 0;
+    private static final float MAX_MAP_TILT_DEGREES = 67.5f;
 
     private DrawerLayout drawerLayout;
+    private DrawerArrowDrawable drawerArrow;
     private ActionBarDrawerToggle drawerToggle;
     private ListView drawerList;
     private String[] drawerTitles, locationTypes;
@@ -63,8 +70,6 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_maps);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
         title = drawerTitle = getTitle();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerTitles = getResources().getStringArray(R.array.drawer_names);
@@ -74,44 +79,35 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedPOI = position;
+                getSupportActionBar().setTitle(drawerTitles[position]);
+                bottomSheetContent.getPOITypeImage().setImageResource(bottomSheetContent.POITypeImages.get(getPOITypeFrom(position)));
                 selectItem(position);
             }
         });
         drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerTitles));
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_closed) {
+        drawerArrow = new DrawerArrowDrawable(this) {
+            @Override
+            public boolean isLayoutRtl() {
+                return false;
+            }
+        };
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, drawerArrow, R.string.drawer_open, R.string.drawer_closed) {
 
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(title);
                 invalidateOptionsMenu();
             }
 
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(drawerTitle);
                 invalidateOptionsMenu();
             }
         };
-
-        drawerLayout.setDrawerListener(drawerToggle);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_closed) {
-
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(title);
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(drawerTitle);
-            }
-        };
-        drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.addDrawerListener(drawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         drawerLayout.setFocusableInTouchMode(false);
-        drawerToggle.syncState();
         drawerToggle.setAnimateEnabled(true);
-        drawerToggle.syncState();
         bottomSheetLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout); //da aggiungere il FAB
         bottomSheetLayout.setPanelState(PanelState.HIDDEN);
         bottomSheetContent = new BottomSheetContent(bottomSheetLayout);
@@ -123,6 +119,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetContent.setTitle((TextView) findViewById(R.id.title));
         bottomSheetContent.setPriceLevel((TextView) findViewById(R.id.price_level));
         bottomSheetContent.setRatingBar((RatingBar) findViewById(R.id.rating_bar));
+        bottomSheetContent.setPOITypeImage((ImageView) findViewById(R.id.poi_type_image));
         bottomSheetLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,7 +150,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         if (location != null) {
             onLocationChanged(location);
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER - SLOWER- and LocationManager.PASSIVE_PROVIDER
     }
 
     @Override
@@ -161,25 +158,26 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        if(tempLocation == null)
-            tempLocation = location;
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(latLng)
-                .tilt(60)
-                .zoom(15)
-                .bearing(0)
+                .tilt(MAX_MAP_TILT_DEGREES)
+                .zoom(MAX_MAP_ZOOM)
+                .bearing(MAP_BEARING_DIRECTION)
                 .build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
         map.moveCamera(cameraUpdate);
         map.animateCamera(CameraUpdateFactory.zoomIn());
-        map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+        map.animateCamera(CameraUpdateFactory.zoomTo(MAX_MAP_ZOOM), ANIMATION_TIME, null);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: marshmallow things
             return;
-        }
-        if(tempLocation != location && tempLocation.distanceTo(location) > MIN_DISTANCE / 2) {
+        }                           //adding this first AND condition will smooth a bit in false condition, != faster than .distanceTo
+        if(tempLocation == null || (tempLocation != location && tempLocation.distanceTo(location) > MIN_DISTANCE / 2)) {
             showNearByPointOfInterests(locationTypes[selectedPOI]);
-            tempLocation = null;
+            if(tempLocation == null)
+                tempLocation = location;
+            else
+                tempLocation = null;
         }
     }
 
@@ -214,11 +212,46 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
+    public POIType getPOITypeFrom(int position)
+    {
+        switch(position)
+        {
+            case 0 : return POIType.BAR;
+            case 1 : return POIType.RESTAURANT;
+            case 2 :
+            case 6 : return POIType.SHOPPING;
+            case 3 : return POIType.BANK;
+            case 4 : return POIType.HEALTH;
+            case 5 : return POIType.CAFE;
+            default : return POIType.BUSINESS;
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle.onOptionsItemSelected(item))
             return true;
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(drawerList))
+            finish();
+        else
+            drawerLayout.openDrawer(drawerList);
     }
 
     //in futuro

@@ -4,7 +4,6 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/white"
@@ -18,12 +17,22 @@
                 android:paddingLeft="56dp"
                 android:paddingStart="56dp">
 
-                <TextView
-                    style="@style/TextAppearance.AppCompat.Headline"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/title"/>
+                    android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/poi_type_image" />
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Headline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/title"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -67,7 +76,6 @@
                     android:background="@android:color/black" />
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"

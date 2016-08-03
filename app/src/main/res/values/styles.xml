@@ -1,11 +1,11 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_ab_up_compat</item>
     </style>
 
     <style name="ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
