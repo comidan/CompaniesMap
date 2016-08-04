@@ -61,7 +61,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private GoogleMap map;
     private LocationManager locationManager;
     private Location tempLocation = null;
-    private int selectedPOI = 0;
+    private int selectedPOI = -1;
     double latitude = 0;
     double longitude = 0;
 
@@ -70,6 +70,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_maps);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         title = drawerTitle = getTitle();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerTitles = getResources().getStringArray(R.array.drawer_names);
@@ -78,6 +80,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                bottomSheetLayout.setPanelState(PanelState.HIDDEN);
                 selectedPOI = position;
                 getSupportActionBar().setTitle(drawerTitles[position]);
                 bottomSheetContent.getPOITypeImage().setImageResource(bottomSheetContent.POITypeImages.get(getPOITypeFrom(position)));
@@ -104,11 +107,10 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             }
         };
         drawerLayout.addDrawerListener(drawerToggle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
         drawerLayout.setFocusableInTouchMode(false);
         drawerToggle.setAnimateEnabled(true);
         bottomSheetLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout); //da aggiungere il FAB
+        bottomSheetLayout.setDragView(findViewById(R.id.main_bar));
         bottomSheetLayout.setPanelState(PanelState.HIDDEN);
         bottomSheetContent = new BottomSheetContent(bottomSheetLayout);
         bottomSheetContent.setAddress((TextView) findViewById(R.id.address));
@@ -123,7 +125,16 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bottomSheetLayout.setPanelState(PanelState.COLLAPSED);
+                //bottomSheetLayout.setPanelState(PanelState.COLLAPSED);
+            }
+        });
+        bottomSheetContent.getTitle().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(bottomSheetContent.getTitle().getMaxLines() == 1)
+                    bottomSheetContent.getTitle().setMaxLines(3);
+                else
+                    bottomSheetContent.getTitle().setMaxLines(1);
             }
         });
         googleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this)
@@ -132,12 +143,6 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
                                                            .addScope(Drive.SCOPE_FILE)
                                                            .build();
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                bottomSheetLayout.setPanelState(PanelState.HIDDEN);
-            }
-        });
         map.setMyLocationEnabled(true);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -173,7 +178,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             return;
         }                           //adding this first AND condition will smooth a bit in false condition, != faster than .distanceTo
         if(tempLocation == null || (tempLocation != location && tempLocation.distanceTo(location) > MIN_DISTANCE / 2)) {
-            showNearByPointOfInterests(locationTypes[selectedPOI]);
+            if(selectedPOI != -1)
+                showNearByPointOfInterests(locationTypes[selectedPOI]);
             if(tempLocation == null)
                 tempLocation = location;
             else
@@ -248,7 +254,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onBackPressed() {
-        if(drawerLayout.isDrawerOpen(drawerList))
+        if(bottomSheetLayout.getPanelState() == PanelState.COLLAPSED)
+            bottomSheetLayout.setPanelState(PanelState.HIDDEN);
+        else if(bottomSheetLayout.getPanelState() == PanelState.EXPANDED)
+            bottomSheetLayout.setPanelState(PanelState.COLLAPSED);
+        else if(drawerLayout.isDrawerOpen(drawerList))
             finish();
         else
             drawerLayout.openDrawer(drawerList);
