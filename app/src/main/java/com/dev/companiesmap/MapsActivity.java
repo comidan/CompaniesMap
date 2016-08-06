@@ -8,7 +8,10 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +51,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private static final int MAP_BEARING_DIRECTION = 0;
     private static final float MAX_MAP_TILT_DEGREES = 67.5f;
 
+    private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
     private DrawerArrowDrawable drawerArrow;
     private ActionBarDrawerToggle drawerToggle;
@@ -73,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         title = drawerTitle = getTitle();
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_layout);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerTitles = getResources().getStringArray(R.array.drawer_names);
         locationTypes = getResources().getStringArray(R.array.poi_mames);
@@ -131,7 +136,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetContent.getTitle().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(bottomSheetContent.getTitle().getMaxLines() == 1)
+                if(bottomSheetContent.getTitle().getLineCount() == 1)
                     bottomSheetContent.getTitle().setMaxLines(3);
                 else
                     bottomSheetContent.getTitle().setMaxLines(1);
@@ -264,15 +269,39 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             drawerLayout.openDrawer(drawerList);
     }
 
-    //in futuro
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        if(status == LocationProvider.AVAILABLE) {
+            locationManager.removeUpdates(this);
+            locationManager.requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: marshmallow things
+                return;
+            }
+            if (provider.equals(LocationManager.GPS_PROVIDER))
+                Snackbar.make(coordinatorLayout, getString(R.string.gps_linked), Snackbar.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
-    public void onProviderEnabled(String provider) { }
+    public void onProviderEnabled(String provider) {
+        locationManager.requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: marshmallow things
+            return;
+        }
+        if (provider.equals(LocationManager.GPS_PROVIDER))
+            Snackbar.make(coordinatorLayout, getString(R.string.gps_linked), Snackbar.LENGTH_SHORT).show();
+    }
 
     @Override
-    public void onProviderDisabled(String provider) { }
+    public void onProviderDisabled(String provider) {
+        locationManager.removeUpdates(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: marshmallow things
+            return;
+        }
+    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {

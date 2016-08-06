@@ -3,6 +3,8 @@
     <string name="title_activity_maps">Map</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_closed">Closed</string>
+    <string name="gps_linked">Collegamento ai satelliti GPS riuscito. Passaggio a modaltià GPS persistente.</string>
+
     <array name="poi_mames">        //https://developers.google.com/places/supported_types
         <item>bar</item>
         <item>restaurant</item>
