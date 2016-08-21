@@ -7,5 +7,6 @@ public enum POIType {
     HEALTH,
     BUSINESS,
     RESTAURANT,
-    SHOPPING
+    SHOPPING,
+    TRANSPORT
 }

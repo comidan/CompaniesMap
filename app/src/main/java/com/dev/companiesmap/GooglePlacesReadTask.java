@@ -1,5 +1,6 @@
 package com.dev.companiesmap;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,6 +14,8 @@ public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
     GoogleMap googleMap;
     GoogleApiClient googleApiClient;
     BottomSheetContent bottomSheetContent;
+    Context context;
+    int markerColor;
 
     @Override
     protected String doInBackground(Object... inputObj) {
@@ -22,6 +25,8 @@ public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
             String googlePlacesUrl = (String) inputObj[1];
             googleApiClient = (GoogleApiClient) inputObj[2];
             bottomSheetContent = (BottomSheetContent) inputObj[3];
+            context = (Context) inputObj[4];
+            markerColor = (int) inputObj[5];
             Http http = new Http();
             googlePlacesData = http.read(googlePlacesUrl);
         }
@@ -35,11 +40,13 @@ public class GooglePlacesReadTask extends AsyncTask<Object, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
         PlacesDisplayTask placesDisplayTask = new PlacesDisplayTask();
-        Object[] toPass = new Object[4];
+        Object[] toPass = new Object[6];
         toPass[0] = googleMap;
         toPass[1] = result;
         toPass[2] = googleApiClient;
         toPass[3] = bottomSheetContent;
+        toPass[4] = context;
+        toPass[5] = markerColor;
         placesDisplayTask.execute(toPass);
     }
 }

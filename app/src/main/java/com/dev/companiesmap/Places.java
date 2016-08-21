@@ -6,6 +6,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,6 +82,10 @@ public class Places {
                                 googlePlaceMap.put("price_level", myPlace.getPriceLevel()+"");
                                 googlePlaceMap.put("phone_number", myPlace.getPhoneNumber().toString());
                                 googlePlaceMap.put("address", myPlace.getAddress().toString());
+                                googlePlaceMap.put("website", myPlace.getWebsiteUri() != null ? myPlace.getWebsiteUri().toString() :
+                                                                                                null);
+                                googlePlaceMap.put("coordinates", myPlace.getLatLng().latitude + " " + myPlace.getLatLng().longitude);
+
                             }
                             else
                                 Log.e("Places", "Place not found");

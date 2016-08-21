@@ -1,29 +1,38 @@
 package com.dev.companiesmap;
 
 import android.Manifest;
+import android.support.v4.app.LoaderManager;
+import android.app.SearchManager;
 import android.content.Context;
+import android.support.v4.content.CursorLoader;
+import android.content.Intent;
+import android.support.v4.content.Loader;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RatingBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -41,7 +50,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
 
-public class MapsActivity extends AppCompatActivity implements LocationListener, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends AppCompatActivity implements LocationListener, GoogleApiClient.OnConnectionFailedListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
@@ -53,9 +62,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
 
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
-    private DrawerArrowDrawable drawerArrow;
     private ActionBarDrawerToggle drawerToggle;
-    private ListView drawerList;
+    private ExpandableListView drawerList;
     private String[] drawerTitles, locationTypes;
     private CharSequence drawerTitle;
     private CharSequence title;
@@ -65,7 +73,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private GoogleMap map;
     private LocationManager locationManager;
     private Location tempLocation = null;
-    private int selectedPOI = -1;
+    private int selectedPOI = - 1;
+    private int selectedCategoryPOI = - 1;
     double latitude = 0;
     double longitude = 0;
 
@@ -76,24 +85,29 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_maps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        handleIntent(getIntent());
         title = drawerTitle = getTitle();
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_layout);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerTitles = getResources().getStringArray(R.array.drawer_names);
         locationTypes = getResources().getStringArray(R.array.poi_mames);
-        drawerList = (ListView) findViewById(R.id.left_drawer);
-        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        drawerList = (ExpandableListView) findViewById(R.id.left_drawer);
+        Handler callbackSearchHandler = new Handler(new Handler.Callback() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean handleMessage(Message msg) {
                 bottomSheetLayout.setPanelState(PanelState.HIDDEN);
-                selectedPOI = position;
-                getSupportActionBar().setTitle(drawerTitles[position]);
-                bottomSheetContent.getPOITypeImage().setImageResource(bottomSheetContent.POITypeImages.get(getPOITypeFrom(position)));
-                selectItem(position);
+                SearchQueryObject searchQueryObject = (SearchQueryObject) msg.getData().getSerializable("SEARCH_QUERY");
+                selectedPOI = searchQueryObject.getPOIIndex();
+                selectedCategoryPOI = searchQueryObject.getCategoryIndex();
+                getSupportActionBar().setTitle(searchQueryObject.getPOI());
+                bottomSheetContent.getPOITypeImage().setImageResource(bottomSheetContent.POITypeImages.get(getPOITypeFrom(selectedCategoryPOI)));
+                selectItem(searchQueryObject.getPOI());
+                return false;
             }
         });
-        drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerTitles));
-        drawerArrow = new DrawerArrowDrawable(this) {
+        SubListAdapter adapter = new SubListAdapter(this, callbackSearchHandler);
+        drawerList.setAdapter(adapter);
+        DrawerArrowDrawable drawerArrow = new DrawerArrowDrawable(this) {
             @Override
             public boolean isLayoutRtl() {
                 return false;
@@ -119,7 +133,6 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetLayout.setPanelState(PanelState.HIDDEN);
         bottomSheetContent = new BottomSheetContent(bottomSheetLayout);
         bottomSheetContent.setAddress((TextView) findViewById(R.id.address));
-        bottomSheetContent.setHowFar((TextView) findViewById(R.id.how_far));
         bottomSheetContent.setIsNowOpen((TextView) findViewById(R.id.is_now_open));
         bottomSheetContent.setPhoneNumber((TextView) findViewById(R.id.phone_number));
         bottomSheetContent.setRatingValue((TextView) findViewById(R.id.rating_value));
@@ -127,6 +140,9 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetContent.setPriceLevel((TextView) findViewById(R.id.price_level));
         bottomSheetContent.setRatingBar((RatingBar) findViewById(R.id.rating_bar));
         bottomSheetContent.setPOITypeImage((ImageView) findViewById(R.id.poi_type_image));
+        bottomSheetContent.setCall((ImageButton) findViewById(R.id.call));
+        bottomSheetContent.setBrowse((ImageButton) findViewById(R.id.browse));
+        bottomSheetContent.setDestination((ImageButton) findViewById(R.id.destination));
         bottomSheetLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,6 +212,10 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         showNearByPointOfInterests(locationTypes[position]);
     }
 
+    private void selectItem(String type) {
+        showNearByPointOfInterests(type);
+    }
+
     private void showNearByPointOfInterests(String pointOfInterest) {
         StringBuilder googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlacesUrl.append("location=" + latitude + "," + longitude);
@@ -205,11 +225,13 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         googlePlacesUrl.append("&language=it");
         googlePlacesUrl.append("&key=" + getString(R.string.google_maps_server_key));
         GooglePlacesReadTask googlePlacesReadTask = new GooglePlacesReadTask();
-        Object[] toPass = new Object[4];
+        Object[] toPass = new Object[6];
         toPass[0] = map;
         toPass[1] = googlePlacesUrl.toString();
         toPass[2] = googleApiClient;
         toPass[3] = bottomSheetContent;
+        toPass[4] = this;
+        toPass[5] = getColorByGroupIndex(selectedCategoryPOI);
         googlePlacesReadTask.execute(toPass);
     }
 
@@ -227,14 +249,28 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     {
         switch(position)
         {
-            case 0 : return POIType.BAR;
-            case 1 : return POIType.RESTAURANT;
+            case 0 : return POIType.SHOPPING;
+            case 1 : return POIType.BUSINESS;
             case 2 :
-            case 6 : return POIType.SHOPPING;
-            case 3 : return POIType.BANK;
-            case 4 : return POIType.HEALTH;
-            case 5 : return POIType.CAFE;
+            case 6 : return POIType.BAR;
+            case 3 : return POIType.CAFE;
+            case 4 : return POIType.TRANSPORT;
+            case 5 : return POIType.HEALTH;
             default : return POIType.BUSINESS;
+        }
+    }
+
+    private int getColorByGroupIndex(int groupPosition)
+    {
+        switch (groupPosition)
+        {
+            default:
+            case 0 : return R.color.red;
+            case 1 : return R.color.orange;
+            case 2 : return R.color.yellow;
+            case 3 : return R.color.blue;
+            case 4 : return R.color.violet;
+            case 5 : return R.color.green;
         }
     }
 
@@ -259,7 +295,9 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onBackPressed() {
-        if(bottomSheetLayout.getPanelState() == PanelState.COLLAPSED)
+        if(PlacesDisplayTask.route.hasPathDrawn())
+            PlacesDisplayTask.route.deleteRoute();
+        else if(bottomSheetLayout.getPanelState() == PanelState.COLLAPSED)
             bottomSheetLayout.setPanelState(PanelState.HIDDEN);
         else if(bottomSheetLayout.getPanelState() == PanelState.EXPANDED)
             bottomSheetLayout.setPanelState(PanelState.COLLAPSED);
@@ -267,6 +305,67 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             finish();
         else
             drawerLayout.openDrawer(drawerList);
+    }
+
+    private void handleIntent(Intent intent){
+        if(intent.getAction().equals(Intent.ACTION_SEARCH)){
+            doSearch(intent.getStringExtra(SearchManager.QUERY));
+        }else if(intent.getAction().equals(Intent.ACTION_VIEW)){
+            getPlace(intent.getStringExtra(SearchManager.EXTRA_DATA_KEY));
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void doSearch(String query){
+        Bundle data = new Bundle();
+        data.putString("query", query);
+        getSupportLoaderManager().restartLoader(0, data, this);
+    }
+
+    private void getPlace(String query){
+        Bundle data = new Bundle();
+        data.putString("query", query);
+        getSupportLoaderManager().restartLoader(1, data, this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int arg0, Bundle query) {
+        CursorLoader cLoader = null;
+        if(arg0==0)
+            cLoader = new CursorLoader(getBaseContext(), PlaceProvider.SEARCH_URI, null, null, new String[]{ query.getString("query") }, null);
+        else if(arg0==1)
+            cLoader = new CursorLoader(getBaseContext(), PlaceProvider.DETAILS_URI, null, null, new String[]{ query.getString("query") }, null);
+        return cLoader;
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     @Override

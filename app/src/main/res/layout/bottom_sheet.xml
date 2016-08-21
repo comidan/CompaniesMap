@@ -71,13 +71,66 @@
                 android:alpha="0.12"
                 android:background="@android:color/black" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/activity_margin_half"
                 android:paddingTop="@dimen/activity_margin_half"
-                android:id="@+id/how_far"
-                android:textColor="?attr/colorPrimary" />
+                android:id="@+id/quick_actions"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
+
+                    <ImageButton
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/call"
+                        android:src="@drawable/call"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:background="#00000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
+
+                    <ImageButton
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/browse"
+                        android:src="@drawable/website"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:background="#00000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center" >
+
+                    <ImageButton
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/destination"
+                        android:src="@drawable/destination"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:background="#00000000"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

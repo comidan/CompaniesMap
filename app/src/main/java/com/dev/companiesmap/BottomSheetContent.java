@@ -1,5 +1,6 @@
 package com.dev.companiesmap;
 
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -11,9 +12,10 @@ import java.util.HashMap;
 
 public class BottomSheetContent {
 
-    private TextView title, address, isNowOpen, ratingValue, howFar, phoneNumber, priceLevel;
+    private TextView title, address, isNowOpen, ratingValue, phoneNumber, priceLevel;
     private RatingBar ratingBar;
     private ImageView POITypeImage;
+    private ImageButton call, browse, destination;
     private SlidingUpPanelLayout bottomSheetLayout;
     private HashMap<Marker, HashMap<String, String>> dynamicMarkers;
 
@@ -31,6 +33,7 @@ public class BottomSheetContent {
         POITypeImages.put(POIType.HEALTH, R.drawable.doctor);
         POITypeImages.put(POIType.RESTAURANT, R.drawable.restaurant);
         POITypeImages.put(POIType.SHOPPING, R.drawable.shopping);
+        POITypeImages.put(POIType.TRANSPORT, R.drawable.bus);
     }
 
     public TextView getTitle() {
@@ -65,14 +68,6 @@ public class BottomSheetContent {
         this.ratingValue = ratingValue;
     }
 
-    public TextView getHowFar() {
-        return howFar;
-    }
-
-    public void setHowFar(TextView howFar) {
-        this.howFar = howFar;
-    }
-
     public TextView getPhoneNumber() {
         return phoneNumber;
     }
@@ -95,6 +90,30 @@ public class BottomSheetContent {
 
     public void setRatingBar(RatingBar ratingBar) {
         this.ratingBar = ratingBar;
+    }
+
+    public ImageButton getCall() {
+        return call;
+    }
+
+    public void setCall(ImageButton call) {
+        this.call = call;
+    }
+
+    public ImageButton getBrowse() {
+        return browse;
+    }
+
+    public void setBrowse(ImageButton browse) {
+        this.browse = browse;
+    }
+
+    public ImageButton getDestination() {
+        return destination;
+    }
+
+    public void setDestination(ImageButton destination) {
+        this.destination = destination;
     }
 
     public HashMap<Marker, HashMap<String, String>> getDynamicMarkers() {
