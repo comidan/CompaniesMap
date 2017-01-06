@@ -17,7 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions{
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
+
+
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -27,4 +33,5 @@ dependencies {
     compile 'com.android.support:design:23.2.0'
     compile 'com.sothree.slidinguppanel:library:3.3.0'
     compile files('libs/json.jar')
+    compile files('libs/mysql-connector-java-5.1.40-bin.jar')
 }

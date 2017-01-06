@@ -35,25 +35,15 @@ public class PlaceProvider extends ContentProvider {
     private static final int SUGGESTIONS = 2;
     private static final int DETAILS = 3;
 
-    // Obtain browser key from https://code.google.com/apis/console
     String mKey = "AIzaSyCZAcR3rZY-PW487rcFwRng77s8PMHFwgc";
 
-    // Defines a set of uris allowed with this content provider
     private static final UriMatcher mUriMatcher = buildUriMatcher();
 
-    private static UriMatcher buildUriMatcher() {
-
+    private static UriMatcher buildUriMatcher() {   //setting clearence
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-        // URI for "Go" button
         uriMatcher.addURI(AUTHORITY, "search", SEARCH );
-
-        // URI for suggestions in Search Dialog
         uriMatcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY,SUGGESTIONS);
-
-        // URI for Details
         uriMatcher.addURI(AUTHORITY, "details",DETAILS);
-
         return uriMatcher;
     }
 
@@ -73,93 +63,60 @@ public class PlaceProvider extends ContentProvider {
 
         MatrixCursor mCursor = null;
 
-        switch(mUriMatcher.match(uri)){
+        switch(mUriMatcher.match(uri)) {
             case SEARCH:
-                // Defining a cursor object with columns description, lat and lng
                 mCursor = new MatrixCursor(new String[] { "description","lat","lng" });
-
-                // Create a parser object to parse places in JSON format
                 parser = new PlaceJSONParser();
-
-                // Create a parser object to parse place details in JSON format
                 detailsParser = new PlaceDetailsJSONParser();
-
-                // Get Places from Google Places API
                 jsonString = getPlaces(selectionArgs);
                 try {
-                    // Parse the places ( JSON => List )
                     list = parser.parse(new JSONObject(jsonString));
-
-                    // Finding latitude and longitude for each places using Google Places Details API
                     for(int i=0;i<list.size();i++){
                         HashMap<String, String> hMap = (HashMap<String, String>) list.get(i);
-
                         detailsParser =new PlaceDetailsJSONParser();
-
-                        // Get Place details
                         jsonPlaceDetails = getPlaceDetails(hMap.get("reference"));
-
-                        // Parse the details ( JSON => List )
                         detailsList = detailsParser.parse(new JSONObject(jsonPlaceDetails));
-
-                        // Creating cursor object with places
-                        for(int j=0;j<detailsList.size();j++){
+                        for(int j=0;j<detailsList.size();j++) {
                             HashMap<String, String> hMapDetails = detailsList.get(j);
-
-                            // Adding place details to cursor
                             mCursor.addRow(new String[]{ hMap.get("description") , hMapDetails.get("lat") , hMapDetails.get("lng") });
                         }
-
                     }
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                }
+                catch (JSONException e) {
                     e.printStackTrace();
                 }
                 c = mCursor;
                 break;
 
             case SUGGESTIONS :
-
-                // Defining a cursor object with columns id, SUGGEST_COLUMN_TEXT_1, SUGGEST_COLUMN_INTENT_EXTRA_DATA
                 mCursor = new MatrixCursor(new String[] { "_id", SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA } );
-
-                // Creating a parser object to parse places in JSON format
                 parser = new PlaceJSONParser();
-
-                // Get Places from Google Places API
                 jsonString = getPlaces(selectionArgs);
 
                 try {
-                    // Parse the places ( JSON => List )
                     list = parser.parse(new JSONObject(jsonString));
-
-                    // Creating cursor object with places
                     for(int i=0;i<list.size();i++){
                         HashMap<String, String> hMap = (HashMap<String, String>) list.get(i);
-
-                        // Adding place details to cursor
                         mCursor.addRow(new String[] { Integer.toString(i), hMap.get("description"), hMap.get("reference") });
                     }
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                }
+                catch (JSONException e) {
                     e.printStackTrace();
                 }
                 c = mCursor;
                 break;
 
             case DETAILS :
-                // Defining a cursor object with columns description, lat and lng
                 mCursor = new MatrixCursor(new String[] { "description","lat","lng" });
-
                 detailsParser = new PlaceDetailsJSONParser();
                 jsonPlaceDetails = getPlaceDetails(selectionArgs[0]);
                 try {
                     detailsList = detailsParser.parse(new JSONObject(jsonPlaceDetails));
-                } catch (JSONException e) {
+                }
+                catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-
                 for(int j=0;j<detailsList.size();j++){
                     HashMap<String, String> hMapDetails = detailsList.get(j);
                     mCursor.addRow(new String[]{ hMapDetails.get("formatted_address") , hMapDetails.get("lat") , hMapDetails.get("lng") });
@@ -172,32 +129,27 @@ public class PlaceProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public String getType(Uri uri) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean onCreate() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -206,103 +158,74 @@ public class PlaceProvider extends ContentProvider {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
-        try{
+        try {
             URL url = new URL(strUrl);
-
-            // Creating an http connection to communicate with url
             urlConnection = (HttpURLConnection) url.openConnection();
-
-            // Connecting to url
             urlConnection.connect();
-
-            // Reading data from url
             iStream = urlConnection.getInputStream();
-
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-
             StringBuffer sb = new StringBuffer();
-
             String line = "";
             while( ( line = br.readLine()) != null){
                 sb.append(line);
             }
-
             data = sb.toString();
-
             br.close();
-
-        }catch(Exception e){
+        }
+        catch(Exception e) {
             Log.d("http exception", e.toString());
-        }finally{
+        }
+        finally {
             iStream.close();
             urlConnection.disconnect();
         }
         return data;
     }
 
-    private String getPlaceDetailsUrl(String ref){
-
-        // reference of place
+    private String getPlaceDetailsUrl(String ref) {
         String reference = "reference="+ref;
-
-        // Sensor enabled
         String sensor = "sensor=false";
-
-        // Building the parameters to the web service
         String parameters = reference+"&"+sensor+"&"+mKey;
-
-        // Output format
         String output = "json";
-
-        // Building the url to the web service
         String url = "https://maps.googleapis.com/maps/api/place/details/"+output+"?"+parameters;
-
         return url;
     }
 
-    private String getPlacesUrl(String qry){
+    private String getPlacesUrl(String qry) {
 
         try {
             qry = "input=" + URLEncoder.encode(qry, "utf-8");
-        } catch (UnsupportedEncodingException e1) {
+        }
+        catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
         }
-
-        // Sensor enabled
         String sensor = "sensor=false";
-
-        // place type to be searched
         String types = "types=geocode";
-
-        // Building the parameters to the web service
         String parameters = qry+"&"+types+"&"+sensor+"&"+mKey;
-
-        // Output format
         String output = "json";
-        // Building the url to the web service
         String url = "https://maps.googleapis.com/maps/api/place/autocomplete/"+output+"?"+parameters;
         return url;
     }
 
-    private String getPlaces(String[] params){
-        // For storing data from web service
+    private String getPlaces(String[] params) {
         String data = "";
         String url = getPlacesUrl(params[0]);
-        try{
-            // Fetching the data from web service in background
+        try {
             data = downloadUrl(url);
-        }catch(Exception e){
+        }
+        catch(Exception e) {
             Log.d("Background Task",e.toString());
         }
         return data;
     }
 
-    private String getPlaceDetails(String reference){
+    private String getPlaceDetails(String reference) {
         String data = "";
         String url = getPlaceDetailsUrl(reference);
         try {
             data = downloadUrl(url);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         return data;

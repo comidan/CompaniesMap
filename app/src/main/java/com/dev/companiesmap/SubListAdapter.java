@@ -4,11 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -17,12 +20,15 @@ public class SubListAdapter extends BaseExpandableListAdapter
     private final Context context;
     private final ArrayList<String[]> mainCategories;
     private final String[] mainCategoriesName;
+    private final String[] realTypeNameList;
     private final Handler callbackSearchHandler;
     private int selectedItem = - 1,
                 selectedGroup = - 1;
+    private final String[] drawerChildNames;
 
-    public SubListAdapter(Context context, Handler callbackSearchHandler) {
+    public SubListAdapter(Context context, Handler callbackSearchHandler, String[] drawerChildNames) {
         this.context = context;
+        realTypeNameList = context.getResources().getStringArray(R.array.poi_mames);
         mainCategories = new ArrayList<>();
         mainCategories.add(context.getResources().getStringArray(R.array.shops));
         mainCategories.add(context.getResources().getStringArray(R.array.services));
@@ -37,6 +43,7 @@ public class SubListAdapter extends BaseExpandableListAdapter
                                           context.getString(R.string.transports),
                                           context.getString(R.string.health)};
         this.callbackSearchHandler = callbackSearchHandler;
+        this.drawerChildNames = drawerChildNames;
     }
 
     @Override
@@ -45,7 +52,8 @@ public class SubListAdapter extends BaseExpandableListAdapter
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View rowView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
         TextView textView = (TextView) rowView.findViewById(android.R.id.text1);
-        textView.setText("\t\t\t" + mainCategories.get(groupPosition)[childPosition]);
+        String childName = drawerChildNames[getChildrenNameIndex(groupPosition, childPosition)];
+        textView.setText("\t\t\t" + childName);
         if(childPosition == selectedItem && groupPosition == selectedGroup)
             textView.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
         textView.setOnClickListener(new View.OnClickListener() {
@@ -55,10 +63,11 @@ public class SubListAdapter extends BaseExpandableListAdapter
                 selectedGroup = groupPosition;
                 int poi_count = 0;
                 for(int index = 0; index < groupPosition; index ++)
-                    poi_count += mainCategories.get(groupPosition).length;
+                    poi_count += mainCategories.get(index).length; //should call getChildrenCount, but this should be a little faster
                 poi_count += childPosition;
+                //((TextView)v.findViewById(android.R.id.text1)).getText().toString(); better or not? boooh
                 SearchQueryObject searchQueryObject = new SearchQueryObject(mainCategoriesName[groupPosition],
-                                                                            mainCategories.get(groupPosition)[childPosition],
+                                                                            realTypeNameList[poi_count],
                                                                             groupPosition,
                                                                             poi_count);
                 Bundle content = new Bundle();
@@ -149,5 +158,14 @@ public class SubListAdapter extends BaseExpandableListAdapter
             case 4 : return context.getResources().getColor(R.color.violet);
             case 5 : return context.getResources().getColor(R.color.green);
         }
+    }
+
+    private int getChildrenNameIndex(int groupPosition, int childPosition)
+    {
+        int index = 0;
+        for(int i = 0; i < groupPosition; i ++)
+            index += getChildrenCount(i);
+        index += childPosition;
+        return index;
     }
 }

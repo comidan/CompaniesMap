@@ -1,5 +1,6 @@
 package com.dev.companiesmap;
 
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -12,12 +13,14 @@ import java.util.HashMap;
 
 public class BottomSheetContent {
 
-    private TextView title, address, isNowOpen, ratingValue, phoneNumber, priceLevel;
+    private TextView title, address, isNowOpen, ratingValue, phoneNumber; //priceLevel;
     private RatingBar ratingBar;
     private ImageView POITypeImage;
     private ImageButton call, browse, destination;
     private SlidingUpPanelLayout bottomSheetLayout;
     private HashMap<Marker, HashMap<String, String>> dynamicMarkers;
+    private Button placeOrder;
+    private int POITypeData;
 
     public static HashMap<POIType, Integer> POITypeImages;
 
@@ -76,13 +79,13 @@ public class BottomSheetContent {
         this.phoneNumber = phoneNumber;
     }
 
-    public TextView getPriceLevel() {
+    /*public TextView getPriceLevel() {
         return priceLevel;
     }
 
     public void setPriceLevel(TextView priceLevel) {
         this.priceLevel = priceLevel;
-    }
+    }*/
 
     public RatingBar getRatingBar() {
         return ratingBar;
@@ -138,5 +141,21 @@ public class BottomSheetContent {
 
     public void setPOITypeImage(ImageView POITypeImage) {
         this.POITypeImage = POITypeImage;
+    }
+
+    public Button getPlaceOrder() {
+        return placeOrder;
+    }
+
+    public void setPlaceOrder(Button placeOrder) {
+        this.placeOrder = placeOrder;
+    }
+
+    public int getPOITypeData() {
+        return POITypeData;
+    }
+
+    public void setPOITypeData(int poiTypeData) {
+        this.POITypeData = poiTypeData;
     }
 }

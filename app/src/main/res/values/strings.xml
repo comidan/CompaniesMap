@@ -14,7 +14,7 @@
     <string name="search_hint">Ristorante</string>
     <string name="search_settings">Search anywhere</string>
 
-    <array name="shops">                            //https://developers.google.com/places/supported_types
+    <array name="shops">//https://developers.google.com/places/supported_types
         <item>beauty_salon</item>
         <item>bicycle_store</item>
         <item>book_store</item>
@@ -68,7 +68,6 @@
         <item>lawyer</item>
         <item>local_government_office</item>
         <item>locksmith</item>
-        <item>meal_takeaway</item>
         <item>mosque</item>
         <item>moving_company</item>
         <item>parking</item>
@@ -88,11 +87,10 @@
         <item>train_station</item>
         <item>transit_station</item>
     </array>
-    
+
     <array name="clubs">
         <item>bar</item>
         <item>cafe</item>
-        <item>casino</item>
         <item>meal_delivery</item>
         <item>meal_takeaway</item>
         <item>night_club</item>
@@ -120,6 +118,87 @@
         <item>@string/health</item>
     </array>
 
+    <array name="poi_tousername">
+        <item>Salone di bellezza</item>
+        <item>Negozio di biciclette</item>
+        <item>Libreria</item>
+        <item>Centro commerciale</item>
+        <item>Negozio di vestiti</item>
+        <item>Minimarket</item>
+        <item>Grande magazzino</item>
+        <item>Negozio elettronica</item>
+        <item>Fiorista</item>
+        <item>Mobili</item>
+        <item>Prodotti per la casa</item>
+        <item>Negozio computer</item>
+        <item>Gioiellerie</item>
+        <item>Negozio d\'alcolici</item>
+        <item>Negozio d\'animali</item>
+        <item>Negozio di scarpe</item>
+        <item>Negozi vari</item>
+        <item>Contabilità</item>
+        <item>Bancomat</item>
+        <item>Banca</item>
+        <item>Autolavaggio</item>
+        <item>Cimitero</item>
+        <item>Chiesa</item>
+        <item>Tribunale</item>
+        <item>Elettricista</item>
+        <item>Ambasciata</item>
+        <item>Onoranze funebri</item>
+        <item>Stazione di servizio</item>
+        <item>Tempio Indù</item>
+        <item>Agenzia d\'assicurazioni</item>
+        <item>Avvocato</item>
+        <item>Municipio</item>
+        <item>Ferramenta</item>
+        <item>Moschea</item>
+        <item>Agenzia traslochi</item>
+        <item>Parcheggio</item>
+        <item>Idraulico</item>
+        <item>Poste</item>
+        <item>Agenzia immobiliare</item>
+        <item>Scuola</item>
+        <item>Università</item>
+        <item>Parco divertimenti</item>
+        <item>Acquario</item>
+        <item>Galleria d\'arte</item>
+        <item>Bowling</item>
+        <item>Campeggio</item>
+        <item>Casinò</item>
+        <item>Palestra</item>
+        <item>Biblioteca</item>
+        <item>Cinema</item>
+        <item>Museo</item>
+        <item>Parco</item>
+        <item>SPA</item>
+        <item>Stadio</item>
+        <item>Zoo</item>
+        <item>Bar</item>
+        <item>Caffè</item>
+        <item>Cibo takeaway</item>
+        <item>Cibo d\'asporto</item>
+        <item>Night Club</item>
+        <item>Ristorante</item>
+        <item>Areoporto</item>
+        <item>Fermata bus</item>
+        <item>Noleggio auto</item>
+        <item>Metropolitana</item>
+        <item>Fermata taxi</item>
+        <item>Stazione taxi</item>
+        <item>Stazione ferroviaria</item>
+        <item>Stazione di transito</item>
+        <item>Meccanico</item>
+        <item>Dentista</item>
+        <item>Medico</item>
+        <item>Vigili del fuoco</item>
+        <item>Ospedale</item>
+        <item>Farmacia</item>
+        <item>Fisioterapista</item>
+        <item>Forze dell\'ordine</item>
+        <item>Veterinario</item>
+    </array>
+
     <array name="poi_mames">
         <item>beauty_salon</item>
         <item>bicycle_store</item>
@@ -138,20 +217,6 @@
         <item>pet_store</item>
         <item>shoe_store</item>
         <item>store</item>
-        <item>amusement_park</item>
-        <item>aquarium</item>
-        <item>art_gallery</item>
-        <item>bowling_alley</item>
-        <item>campground</item>
-        <item>casino</item>
-        <item>gym</item>
-        <item>library</item>
-        <item>movie_theater</item>
-        <item>museum</item>
-        <item>park</item>
-        <item>spa</item>
-        <item>stadium</item>
-        <item>zoo</item>
         <item>accounting</item>
         <item>atm</item>
         <item>bank</item>
@@ -168,7 +233,6 @@
         <item>lawyer</item>
         <item>local_government_office</item>
         <item>locksmith</item>
-        <item>meal_takeaway</item>
         <item>mosque</item>
         <item>moving_company</item>
         <item>parking</item>
@@ -177,6 +241,26 @@
         <item>real_estate_agency</item>
         <item>school</item>
         <item>university</item>
+        <item>amusement_park</item>
+        <item>aquarium</item>
+        <item>art_gallery</item>
+        <item>bowling_alley</item>
+        <item>campground</item>
+        <item>casino</item>
+        <item>gym</item>
+        <item>library</item>
+        <item>movie_theater</item>
+        <item>museum</item>
+        <item>park</item>
+        <item>spa</item>
+        <item>stadium</item>
+        <item>zoo</item>
+        <item>bar</item>
+        <item>cafe</item>
+        <item>meal_delivery</item>
+        <item>meal_takeaway</item>
+        <item>night_club</item>
+        <item>restaurant</item>
         <item>airport</item>
         <item>bus_station</item>
         <item>car_rental</item>
@@ -184,13 +268,6 @@
         <item>taxi_stand</item>
         <item>train_station</item>
         <item>transit_station</item>
-        <item>bar</item>
-        <item>cafe</item>
-        <item>casino</item>
-        <item>meal_delivery</item>
-        <item>meal_takeaway</item>
-        <item>night_club</item>
-        <item>restaurant</item>
         <item>car_repair</item>
         <item>dentist</item>
         <item>doctor</item>

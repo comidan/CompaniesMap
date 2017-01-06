@@ -79,7 +79,7 @@ public class Places {
                             {
                                 final Place myPlace = places.get(0);
                                 googlePlaceMap.put("rating", myPlace.getRating()+"");
-                                googlePlaceMap.put("price_level", myPlace.getPriceLevel()+"");
+                                googlePlaceMap.put("price_level", myPlace.getPriceLevel()+""); //really rare
                                 googlePlaceMap.put("phone_number", myPlace.getPhoneNumber().toString());
                                 googlePlaceMap.put("address", myPlace.getAddress().toString());
                                 googlePlaceMap.put("website", myPlace.getWebsiteUri() != null ? myPlace.getWebsiteUri().toString() :

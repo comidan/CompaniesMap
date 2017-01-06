@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -133,7 +135,34 @@ public class PlacesDisplayTask extends AsyncTask<Object, Integer, List<HashMap<S
                 }
                 bottomSheetContent.getIsNowOpen().setText(bottomSheetContent.getDynamicMarkers().get(marker).get("open_now").equals("true") ?
                                                           "Aperto ora" : "Chiuso ora");
-                bottomSheetContent.getPriceLevel().setText(bottomSheetContent.getDynamicMarkers().get(marker).get("price_level"));
+                //bottomSheetContent.getPriceLevel().setText(bottomSheetContent.getDynamicMarkers().get(marker).get("price_level"));
+                POIType locationType = MapsActivity.getPOITypeFrom(bottomSheetContent.getPOITypeData());
+                if(locationType == POIType.SHOPPING ||
+                   locationType == POIType.BUSINESS ||
+                   locationType == POIType.BAR ||
+                   locationType == POIType.CAFE ||
+                   locationType == POIType.RESTAURANT)
+                {
+                    bottomSheetContent.getPlaceOrder().setVisibility(View.VISIBLE);
+                    bottomSheetContent.getPlaceOrder().setClickable(true);
+                    bottomSheetContent.getPlaceOrder().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent orderActivity = new Intent(context, OrderActivity.class);
+                            orderActivity.putExtra("LOCATION_ADDRESS", bottomSheetContent.getDynamicMarkers().get(marker).get("address"));
+                            Date current_date = new Date();
+                            orderActivity.putExtra("LOCATION_DATE", current_date.getYear()+"/"+current_date.getMonth()+"/"+current_date.getDay());
+                            orderActivity.putExtra("LOCATION_TYPE", bottomSheetContent.getPOITypeData());
+                            orderActivity.putExtra("LOCATION_NAME", bottomSheetContent.getDynamicMarkers().get(marker).get("place_name"));
+                            context.startActivity(orderActivity);
+                        }
+                    });
+                }
+                else
+                {
+                    bottomSheetContent.getPlaceOrder().setVisibility(View.INVISIBLE);
+                    bottomSheetContent.getPlaceOrder().setClickable(false);
+                }
                 return false;
             }
         });
@@ -141,7 +170,6 @@ public class PlacesDisplayTask extends AsyncTask<Object, Integer, List<HashMap<S
 
     private float getHUEColorFromRGB(int rgb)
     {
-        Log.v("Color_rgb", rgb + " " + R.color.red);
         switch(rgb)
         {
             default :

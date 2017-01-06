@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -89,7 +90,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         title = drawerTitle = getTitle();
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_layout);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerTitles = getResources().getStringArray(R.array.drawer_names);
+        drawerTitles = getResources().getStringArray(R.array.poi_tousername);
         locationTypes = getResources().getStringArray(R.array.poi_mames);
         drawerList = (ExpandableListView) findViewById(R.id.left_drawer);
         Handler callbackSearchHandler = new Handler(new Handler.Callback() {
@@ -99,13 +100,14 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
                 SearchQueryObject searchQueryObject = (SearchQueryObject) msg.getData().getSerializable("SEARCH_QUERY");
                 selectedPOI = searchQueryObject.getPOIIndex();
                 selectedCategoryPOI = searchQueryObject.getCategoryIndex();
-                getSupportActionBar().setTitle(searchQueryObject.getPOI());
+                getSupportActionBar().setTitle(drawerTitles[searchQueryObject.getPOIIndex()]);
                 bottomSheetContent.getPOITypeImage().setImageResource(bottomSheetContent.POITypeImages.get(getPOITypeFrom(selectedCategoryPOI)));
+                bottomSheetContent.setPOITypeData(selectedCategoryPOI);
                 selectItem(searchQueryObject.getPOI());
                 return false;
             }
         });
-        SubListAdapter adapter = new SubListAdapter(this, callbackSearchHandler);
+        SubListAdapter adapter = new SubListAdapter(this, callbackSearchHandler, drawerTitles);
         drawerList.setAdapter(adapter);
         DrawerArrowDrawable drawerArrow = new DrawerArrowDrawable(this) {
             @Override
@@ -137,12 +139,13 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         bottomSheetContent.setPhoneNumber((TextView) findViewById(R.id.phone_number));
         bottomSheetContent.setRatingValue((TextView) findViewById(R.id.rating_value));
         bottomSheetContent.setTitle((TextView) findViewById(R.id.title));
-        bottomSheetContent.setPriceLevel((TextView) findViewById(R.id.price_level));
+        //bottomSheetContent.setPriceLevel((TextView) findViewById(R.id.price_level));
         bottomSheetContent.setRatingBar((RatingBar) findViewById(R.id.rating_bar));
         bottomSheetContent.setPOITypeImage((ImageView) findViewById(R.id.poi_type_image));
         bottomSheetContent.setCall((ImageButton) findViewById(R.id.call));
         bottomSheetContent.setBrowse((ImageButton) findViewById(R.id.browse));
         bottomSheetContent.setDestination((ImageButton) findViewById(R.id.destination));
+        bottomSheetContent.setPlaceOrder((Button) findViewById(R.id.place_order));
         bottomSheetLayout.setFadeOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -245,7 +248,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-    public POIType getPOITypeFrom(int position)
+    public static POIType getPOITypeFrom(int position)
     {
         switch(position)
         {
